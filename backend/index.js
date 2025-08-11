@@ -32,3 +32,68 @@ function parseBaseToInteger(str,base){
   }
   return value;
 }
+
+// gcd for big int
+
+function bigintGcd(a, b) {
+  a = a < 0n ? -a : a;
+  b = b < 0n ? -b : b;
+  while (b !== 0n) {
+    const t = a % b;
+    a = b;
+    b = t;
+  }
+  return a;
+}
+
+
+class Fraction {
+  constructor(numerator, denominator = 1n) {
+    if (denominator === 0n) throw new Error('Denominator cannot be zero');
+    // Normalize sign to numerator
+    if (denominator < 0n) {
+      numerator = -numerator;
+      denominator = -denominator;
+    }
+    const g = bigintGcd(numerator, denominator);
+    this.n = numerator / g;
+    this.d = denominator / g;
+  }
+
+  // addition
+  add(other) {
+    const n = this.n * other.d + other.n * this.d;
+    const d = this.d * other.d;
+    return new Fraction(n, d);
+  }
+
+  // multiplication
+  mul(other) {
+    const n = this.n * other.n;
+    const d = this.d * other.d;
+    return new Fraction(n, d);
+  }
+
+  // division
+  div(other) {
+    if (other.n === 0n) throw new Error('Division by zero fraction');
+    const n = this.n * other.d;
+    const d = this.d * other.n;
+    return new Fraction(n, d);
+  }
+
+  // convert to string (integer if denominator 1)
+  toString() {
+    if (this.d === 1n) return this.n.toString();
+    return `${this.n.toString()}/${this.d.toString()}`;
+  }
+
+  // check if fraction is integer; if so return BigInt else null
+  toBigIntIfInteger() {
+    if (this.d === 1n) return this.n;
+    if (this.n % this.d === 0n) return this.n / this.d;
+    return null;
+  }
+}
+
+
